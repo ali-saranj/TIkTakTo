@@ -3,43 +3,54 @@ package com.example.tiktakto.data.tiktakto
 import kotlin.random.Random
 
 class TikTakTo {
+
+    // 1 = O, 2 = X
     var board = arrayOf(
-        arrayOf("", "", ""),
-        arrayOf("", "", ""),
-        arrayOf("", "", "")
+        arrayOf(0, 0, 0),
+        arrayOf(0, 0, 0),
+        arrayOf(0, 0, 0)
     )
 
+    var player = 1 // 1 represents 'O', 2 represents 'X'
+
     fun printBoard(): String {
-        var mapboard = ""
+        var mapBoard = ""
         for (row in board) {
-            mapboard += row.joinToString(" | ") { if (it == "") "_" else it } + "\n"
+            mapBoard += row.joinToString(" | ") { when (it) {
+                1 -> "O"
+                2 -> "X"
+                else -> "_"
+            }} + "\n"
         }
-        return mapboard.trimEnd() // Remove the last newline for a cleaner output
+        return mapBoard.trimEnd()
     }
-
-
-    var player = "X"
 
     fun checkWin(): Boolean {
         for (i in 0..2) {
-            // Check row
-            if (board[i][0] == player && board[i][1] == player && board[i][2] == player) return true
-            // Check column
-            if (board[0][i] == player && board[1][i] == player && board[2][i] == player) return true
+            // Check rows and columns
+            if ((board[i][0] == player && board[i][1] == player && board[i][2] == player) ||
+                (board[0][i] == player && board[1][i] == player && board[2][i] == player)
+            ) return true
         }
-
         // Check diagonals
-        if (board[0][0] == player && board[1][1] == player && board[2][2] == player) return true
-        if (board[0][2] == player && board[1][1] == player && board[2][0] == player) return true
-
-        // No win found
-        return false
+        return (board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+                (board[0][2] == player && board[1][1] == player && board[2][0] == player)
     }
 
-    fun makeMove(row: Int, col: Int) {
-        if (board[row][col] == "") {
+    fun checkDraw(): Boolean {
+        return board.flatten().none { it == 0 } && !checkWin()
+    }
+
+    fun getAllItems(): Array<Int> {
+        return board.flatten().toTypedArray()
+    }
+
+    fun makeMove(index: Int) {
+        val row = index / 3
+        val col = index % 3
+        if (board[row][col] == 0) {
             board[row][col] = player
-            player = if (player == "X") "O" else "X"
+            if (!checkWin()) player = if (player == 1) 2 else 1
         }
     }
 
@@ -49,7 +60,7 @@ class TikTakTo {
         // Find all empty cells
         for (i in 0..2) {
             for (j in 0..2) {
-                if (board[i][j] == "") {
+                if (board[i][j] == 0) {
                     emptyCells.add(Pair(i, j))
                 }
             }
@@ -59,13 +70,38 @@ class TikTakTo {
         if (emptyCells.isNotEmpty()) {
             val (row, col) = emptyCells[Random.nextInt(emptyCells.size)]
             board[row][col] = player
-            player = if (player == "X") "O" else "X"
+            if (!checkWin()) player = if (player == 1) 2 else 1
         }
     }
-
 }
 
 fun main() {
+    val game = TikTakTo()
 
+    // Test 1: Empty board - should return false
+    println("Test 1: Empty board (Expect false) -> ${game.checkDraw()}")
 
+    // Test 2: Winning condition - should return false
+    game.board = arrayOf(
+        arrayOf(1, 1, 1),
+        arrayOf(2, 2, 0),
+        arrayOf(0, 0, 0)
+    )
+    println("Test 2: Winning condition (Expect false) -> ${game.checkDraw()}")
+
+    // Test 3: Full board, no winner - should return true
+    game.board = arrayOf(
+        arrayOf(1, 2, 1),
+        arrayOf(1, 1, 2),
+        arrayOf(2, 1, 2)
+    )
+    println("Test 3: Full board, no winner (Expect true) -> ${game.checkDraw()}")
+
+    // Test 4: Full board, with a winner - should return false
+    game.board = arrayOf(
+        arrayOf(1, 2, 1),
+        arrayOf(1, 1, 1),
+        arrayOf(2, 1, 2)
+    )
+    println("Test 4: Full board, with a winner (Expect false) -> ${game.checkDraw()}")
 }

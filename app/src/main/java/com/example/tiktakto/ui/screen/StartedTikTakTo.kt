@@ -72,12 +72,12 @@ fun StartedTikTakTo(
                 ) {
                     var context = LocalContext.current
                     ButtonXO(
-                        painter = painterResource(id = R.drawable.x)
+                        XO = 1
                     ) {
                         Toast.makeText(context, "x", Toast.LENGTH_SHORT).show()
                     }
                     ButtonXO(
-                        painter = painterResource(id = R.drawable.o)
+                        XO = 2
                     ) {
                         Toast.makeText(context, "o", Toast.LENGTH_SHORT).show()
                     }
